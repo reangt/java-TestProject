@@ -1,0 +1,111 @@
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css" />
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <link rel="icon" href="https://pic.616pic.com/ys_bnew_img/00/17/92/iENk0l5BDz.jpg" type="image/x-icon"/>
+  <title>批量替换</title>
+</head>
+<div id="app">
+  <br>
+  <div>
+    <el-button round @click="handleSubmit" style="margin-bottom: 0.5%;">显示</el-button>
+    <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 7}" style="width: 60%;" v-model="inputValue"
+      placeholder="请输入内容" clearable></el-input>
+  </div>
+  <br>
+  <template>
+    <div>
+      <el-button round @click="addInput">Add Input</el-button>
+      <el-button round @click="save">保存</el-button>
+      <el-button round @click="read">读取</el-button>
+      <div v-for="(item, index) in inputs" :key="index">
+        {{index}}
+        <el-input v-model="inkey[index]" placeholder="原数据" clearable style="width: 25%;margin: 10;"></el-input>
+        <el-input v-model="inValue[index]" placeholder="替换值" clearable style="width: 25%;"></el-input>
+        <el-input v-model="inREMARKS[index]" placeholder="备注" clearable style="width: 12%;"></el-input>
+        <el-button @click="removeInput(index)" type="danger" icon="el-icon-delete" circle></el-button>
+      </div>
+      </el-input>
+    </div>
+  </template>
+  <!-- <button @click="view">显示</button> -->
+  <!-- <p v-if="displayedContent">{{ displayedContent }}</p> -->
+  <br>
+  <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 17}" style="width: 65%;" v-model="displayedContent"
+      placeholder="替换内容" clearable></el-input>
+
+</div>
+<script>
+  new Vue({
+    el: "#app",
+    data: {
+      inputValue: '', // 绑定到输入框的值
+      displayedContent: '', // 用于显示新内容的变量
+      inputs: [], // 存放所有输入框的数据
+      inkey: [],
+      inValue: [],
+      inREMARKS:[],
+      replaces: []
+    },
+    methods: {
+      handleSubmit() {
+        this.displayedContent = this.replaceMultipleFields(this.inputValue);
+        // this.inputValue = '';  
+      },
+      replaceMultipleFields(text) {
+        this.replaces = [];
+        for (var i = 0; i < this.inputs.length; i++) {
+          len = [];
+          len.push(this.inkey[i]);
+          len.push(this.inValue[i]);
+          this.replaces.push(len);
+        }
+        var replacements = this.replaces
+        // [
+        //   // ['field1', 'replacement1'], // 第一个要替换的字段及其替换值
+        //   // ['field2', 'replacement2'], // 第二个要替换的字段及其替换值
+        //   // this.replaces
+        //   // ... 添加更多需要替换的字段及其替换值
+        // ];
+
+        for (var i = 0; i < replacements.length; i++) {
+          text = text.replace(new RegExp('\\b' + replacements[i][0] + '\\b','g'), replacements[i][1]);
+        }
+        return text;
+      },
+      addInput() {
+        this.inputs.push({ value: '' }); // 添加一个空白的输入框
+      },
+
+      removeInput(index) {
+        console.log(index);
+        this.inputs.splice(index, 1); // 移除指定索引位置的输入框
+        this.inkey.splice(index, 1); // 移除指定索引位置的输入框
+        this.inValue.splice(index, 1); // 移除指定索引位置的输入框
+        this.inREMARKS.splice(index, 1);
+      },
+      view() {
+        console.log(this.replaces);
+      },
+      save(){
+        console.log(this.inkey)
+        localStorage.setItem('inkey', this.inkey);
+        localStorage.setItem('inValue', this.inValue);
+        localStorage.setItem('inREMARKS', this.inREMARKS);
+      },
+      read(){
+        // console.log(this.inkey)
+        // console.log(localStorage.getItem("inkey"))
+        
+        this.inkey=localStorage.getItem("inkey").split(',');
+        this.inValue=localStorage.getItem("inValue").split(',');
+        this.inREMARKS=localStorage.getItem("inREMARKS").split(',');
+        for(var i=0;i<this.inkey.length;i++){
+          this.addInput();
+        }
+        // console.log(this.inkey)
+      }
+    }
+  })
+  
+</script>
